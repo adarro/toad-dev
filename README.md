@@ -1,8 +1,19 @@
-# TOAD
-<!-- START doctoc -->
-<!-- END doctoc -->
-# The Oracle At DDO
-### DDO Calculations, Planner and Plotting
+# TOAD (The Oracle At DDO)
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+## Contents
+
+- [Overview](#overview)
+- [Goals](#goals)
+- [Documentation](#documentation)
+- [TODO](#todo)
+- [Badges](#badges)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+## Overview
+```
+DDO Calculations, Planner and Plotting
+```
 
 
 This is a macro service that I am creating to become more familiar with alternative JVM languages and multiple platforms.
@@ -17,15 +28,15 @@ The bulk of the codebase is targeted for Scala, with R providing some analytics 
 
 The transport will eventually be an interconnected RESTful API over Websockets where possible using JSoN with optional Xml outputs utilizing Firebase and / or MongoDB as a potential backend.
 
+## Goals
+
 One of the final additional goals is extensibility.  The intention is to provide an Open API and to be both Swagger 2.0 and RAML 0.8 compliant.
 
 This API will should feature Semantic Versioning once considered stable enough to promote out of Alpha status.
 
+## Documentation
+## TODO
+## Badges
 - - -
-[![GitHub license](https://img.shields.io/badge/license-Apache%202-blue.svg?style=plastic)](https://raw.githubusercontent.com/adarro/ddo-calc/master/LICENSE) [![Project Stats](https://www.openhub.net/p/ddo-calc/widgets/project_thin_badge?format=gif&amp;ref=Thin+badge)](https://www.openhub.net/p/ddo-calc)
-![Travis CI](https://travis-ci.org/adarro/ddo-calc.svg?branch=master)  [![Build status](https://ci.appveyor.com/api/projects/status/pnp0ghiwcu2lpkft?svg=true)](https://ci.appveyor.com/project/adarro/ddo-calc) [![Dependency Status](https://www.versioneye.com/user/projects/57618d410a82b2003b63b7b1/badge.svg?style=flat)](https://www.versioneye.com/user/projects/57618d410a82b2003b63b7b1)
 
-[![Codacy Badge](https://api.codacy.com/project/badge/grade/2a569860b46048d3b84f2f6ecd0eaf2b)](https://www.codacy.com/app/adarro/ddo-calc) [![Codecov](https://img.shields.io/codecov/c/github/adarro/ddo-calc.svg?maxAge=2592000?style=plastic)](https://codecov.io/github/adarro/ddo-calc) [![GitHub issues](https://img.shields.io/github/issues/adarro/ddo-calc.svg?style=plastic)](https://github.com/adarro/ddo-calc/issues)
-API Compliance ![Swagger 2.0](http://online.swagger.io/validator?url=https://raw.githubusercontent.com/adarro/ddo-calc/master/swagger.yaml)
-[![Java SDK](https://apimatic.io/apiarydocs/image?template=java)](https://apimatic.io/apiarydocs/sdk?template=java&token=NTc2Nzc0NDVhMDE5ZTExY2E4MzQ1ZWY1&apiid=truthencode)[![Windows SDK](https://apimatic.io/apiarydocs/image?template=windows)](https://apimatic.io/apiarydocs/sdk?template=windows&token=NTc2Nzc0NDVhMDE5ZTExY2E4MzQ1ZWY1&apiid=truthencode)[![Android SDK](https://apimatic.io/apiarydocs/image?template=android)](https://apimatic.io/apiarydocs/sdk?template=android&token=NTc2Nzc0NDVhMDE5ZTExY2E4MzQ1ZWY1&apiid=truthencode)[![iOS SDK](https://apimatic.io/apiarydocs/image?template=ios)](https://apimatic.io/apiarydocs/sdk?template=ios&token=NTc2Nzc0NDVhMDE5ZTExY2E4MzQ1ZWY1&apiid=truthencode)[![PHP SDK](https://apimatic.io/apiarydocs/image?template=php)](https://apimatic.io/apiarydocs/sdk?template=php&token=NTc2Nzc0NDVhMDE5ZTExY2E4MzQ1ZWY1&apiid=truthencode)[![Python SDK](https://apimatic.io/apiarydocs/image?template=python)](https://apimatic.io/apiarydocs/sdk?template=python&token=NTc2Nzc0NDVhMDE5ZTExY2E4MzQ1ZWY1&apiid=truthencode)[![Ruby SDK](https://apimatic.io/apiarydocs/image?template=ruby)](https://apimatic.io/apiarydocs/sdk?template=ruby&token=NTc2Nzc0NDVhMDE5ZTExY2E4MzQ1ZWY1&apiid=truthencode)[![GOLang SDK](https://apimatic.io/apiarydocs/image?template=golang)](https://apimatic.io/apiarydocs/sdk?template=golang&token=NTc2Nzc0NDVhMDE5ZTExY2E4MzQ1ZWY1&apiid=truthencode)[![AngularJS SDK](https://apimatic.io/apiarydocs/image?template=angularjs)](https://apimatic.io/apiarydocs/sdk?template=angularjs&token=NTc2Nzc0NDVhMDE5ZTExY2E4MzQ1ZWY1&apiid=truthencode)[![NodeJS SDK](https://apimatic.io/apiarydocs/image?template=nodejs)](https://apimatic.io/apiarydocs/sdk?template=nodejs&token=NTc2Nzc0NDVhMDE5ZTExY2E4MzQ1ZWY1&apiid=truthencode)
 
