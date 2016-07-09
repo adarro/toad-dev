@@ -10,6 +10,11 @@ job_build:
     - npm install
     - grunt build
 
+maven-build:
+  stage: build
+  script:
+    - mvn clean integration-test
+
 job_deploy:
   stage: deploy
   script:
