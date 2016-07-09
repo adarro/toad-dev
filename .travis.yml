@@ -1,0 +1,12 @@
+language: scala
+scala:
+- 2.11.8
+jdk:
+- oraclejdk8
+- oraclejdk7  
+script:
+- mvn scoverage:report
+
+after_success:
+  - bash <(curl -s https://codecov.io/bash)
+  
