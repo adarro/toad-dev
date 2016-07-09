@@ -1,26 +1,23 @@
 package io.truthencode.toad.verticle
 
-import java.util.concurrent.TimeUnit
-
 import com.typesafe.scalalogging.slf4j.LazyLogging
-import io.truthencode.toad.SimpleScalaVerticle
 import io.vertx.core.{AsyncResult, Vertx, VertxOptions}
-import io.vertx.spi.cluster.hazelcast.HazelcastClusterManager
 
-import scala.concurrent.duration.Duration
-import scala.concurrent.{Future, Promise}
-import scala.concurrent.duration._
-import scala.concurrent._
-import scala.util.{Failure, Success}
+import scala.concurrent.{Await, Future, Promise}
 import scala.language.postfixOps
+import scala.util.{Failure, Success}
 
 /**
   * Created by adarr on 7/7/2016.
   */
 object VertxService extends LazyLogging {
-  // import io.truthencode.toad.config.Implicits.mgr
-  def startVertx(timeout: Duration = 180 seconds) = {
-    import ExecutionContext.Implicits.global
+
+  import scala.concurrent.duration._
+
+  val defaultDuration = 180 seconds
+
+  def startVertx(timeout: Duration = defaultDuration) = {
+    import scala.concurrent.ExecutionContext.Implicits.global
     val v = startVertXAsync()
     v.onComplete {
       case Success(x: Vertx) => x
@@ -46,13 +43,13 @@ object VertxService extends LazyLogging {
           else
             logger.error("failed to deploy embedded mongo verticle", ar3.cause())
         })
-        v.deployVerticle(new SimpleScalaVerticle, (ar2: AsyncResult[String]) => {
-          if (ar2.succeeded())
-            logger.info("We have Verticle liftoff :)")
-          else {
-            logger.error("Verticle-ly challenged!", ar2.cause())
-          }
-        })
+        //        v.deployVerticle(new SimpleScalaVerticle, (ar2: AsyncResult[String]) => {
+        //          if (ar2.succeeded())
+        //            logger.info("We have Verticle liftoff :)")
+        //          else {
+        //            logger.error("Verticle-ly challenged!", ar2.cause())
+        //          }
+        //        })
       } else {
         logger.info("Failed to initialize Vertx cluster")
         vLauncher.failure(evt.cause())

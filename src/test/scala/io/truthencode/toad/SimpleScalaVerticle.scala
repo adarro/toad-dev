@@ -16,7 +16,7 @@ import scala.collection.JavaConversions._
 
 object SimpleScalaVerticle extends LazyLogging {
   private val log = logger
-  private[verticle] val COLLECTION: String = "whiskies"
+  private val COLLECTION = "whiskies"
 }
 
 class SimpleScalaVerticle extends AbstractVerticle {
