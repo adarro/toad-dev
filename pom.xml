@@ -34,6 +34,9 @@
     <scala.logging.version>2.1.2</scala.logging.version>
     <scala.binary.full.version>${scala.version}</scala.binary.full.version>
     <scoverage.plugin.version>1.1.1</scoverage.plugin.version>
+    <!--Logging-->
+    <logback.version>1.1.7</logback.version>
+    <slf4j.version>1.7.21</slf4j.version>
     <!-- Testing -->
     <scalatest.version>3.0.0-M15</scalatest.version>
     <!-- evosuite hosted at www.evosuite.org/m2 -->
@@ -69,8 +72,8 @@
       <artifactId>akka-actor_${scala.base}</artifactId>
     </dependency>
     <!--<dependency>-->
-      <!--<groupId>org.mashupbots.socko</groupId>-->
-      <!--<artifactId>socko-webserver_${scala.base}</artifactId>-->
+    <!--<groupId>org.mashupbots.socko</groupId>-->
+    <!--<artifactId>socko-webserver_${scala.base}</artifactId>-->
     <!--</dependency>-->
     <dependency>
       <groupId>com.github.jeroenr</groupId>
@@ -100,6 +103,21 @@
     <dependency>
       <groupId>com.typesafe.scala-logging</groupId>
       <artifactId>scala-logging-slf4j_${scala.tools.version}</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-api</artifactId>
+      <optional>true</optional>
+    </dependency>
+    <dependency>
+      <groupId>ch.qos.logback</groupId>
+      <artifactId>logback-classic</artifactId>
+      <optional>true</optional>
+    </dependency>
+    <dependency>
+      <groupId>ch.qos.logback</groupId>
+      <artifactId>logback-core</artifactId>
+      <optional>true</optional>
     </dependency>
     <!-- Configuration -->
     <dependency>
@@ -134,11 +152,23 @@
     </dependency>
     <dependency>
       <groupId>io.vertx</groupId>
+      <artifactId>vertx-core</artifactId>
+      <scope>test</scope>
+      <type>test-jar</type>
+    </dependency>
+    <dependency>
+      <groupId>io.vertx</groupId>
       <artifactId>vertx-web</artifactId>
     </dependency>
     <dependency>
       <groupId>io.vertx</groupId>
       <artifactId>vertx-mongo-client</artifactId>
+    </dependency>
+    <!-- Embedded used for local development -->
+    <dependency>
+      <groupId>io.vertx</groupId>
+      <artifactId>vertx-mongo-embedded-db</artifactId>
+      <optional>true</optional>
     </dependency>
     <dependency>
       <groupId>io.vertx</groupId>
@@ -147,6 +177,11 @@
     <dependency>
       <groupId>io.vertx</groupId>
       <artifactId>vertx-codegen</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>io.vertx</groupId>
+      <artifactId>vertx-unit</artifactId>
+      <scope>test</scope>
     </dependency>
     <!-- <dependency>
        <groupId>io.vertx</groupId>
@@ -180,6 +215,11 @@
     <dependency>
       <groupId>org.javassist</groupId>
       <artifactId>javassist</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.github.simplyscala</groupId>
+      <artifactId>scalatest-embedmongo_${scala.base}</artifactId>
+      <scope>test</scope>
     </dependency>
   </dependencies>
   <dependencyManagement>
@@ -216,6 +256,11 @@
       </dependency>
       <dependency>
         <groupId>io.vertx</groupId>
+        <artifactId>vertx-mongo-embedded-db</artifactId>
+        <version>${vertx.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>io.vertx</groupId>
         <artifactId>vertx-hazelcast</artifactId>
         <version>${vertx.version}</version>
       </dependency>
@@ -234,6 +279,20 @@
         <artifactId>vertx-service-factory</artifactId>
         <version>${vertx.version}</version>
       </dependency>
+      <dependency>
+        <groupId>io.vertx</groupId>
+        <artifactId>vertx-unit</artifactId>
+        <version>${vertx.version}</version>
+        <scope>test</scope>
+      </dependency>
+      <dependency>
+        <groupId>io.vertx</groupId>
+        <artifactId>vertx-core</artifactId>
+        <scope>test</scope>
+        <version>${vertx.version}</version>
+        <type>test-jar</type>
+      </dependency>
+
       <!-- Camel routing -->
       <dependency>
         <groupId>org.apache.camel</groupId>
@@ -305,6 +364,12 @@
         <artifactId>tepkin_${scala.base}</artifactId>
         <version>0.7</version>
       </dependency>
+      <dependency>
+        <groupId>com.github.simplyscala</groupId>
+        <artifactId>scalatest-embedmongo_${scala.base}</artifactId>
+        <version>0.2.2</version>
+        <scope>test</scope>
+      </dependency>
       <!-- Uri builder -->
       <dependency>
         <groupId>com.netaporter</groupId>
@@ -322,6 +387,21 @@
         <groupId>com.typesafe.scala-logging</groupId>
         <artifactId>scala-logging-slf4j_${scala.tools.version}</artifactId>
         <version>${scala.logging.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.slf4j</groupId>
+        <artifactId>slf4j-api</artifactId>
+        <version>${slf4j.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>ch.qos.logback</groupId>
+        <artifactId>logback-classic</artifactId>
+        <version>${logback.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>ch.qos.logback</groupId>
+        <artifactId>logback-core</artifactId>
+        <version>${logback.version}</version>
       </dependency>
       <!-- Configuration -->
       <dependency>
@@ -611,10 +691,14 @@
           <groupId>org.evosuite.plugins</groupId>
           <artifactId>evosuite-maven-plugin</artifactId>
           <version>${evosuiteVersion}</version>
-          <executions><execution>
-            <goals> <goal> prepare </goal> </goals>
-            <phase> process-test-classes </phase>
-          </execution></executions>
+          <executions>
+            <execution>
+              <goals>
+                <goal>prepare</goal>
+              </goals>
+              <phase>process-test-classes</phase>
+            </execution>
+          </executions>
         </plugin>
         <plugin>
           <groupId>org.codehaus.mojo</groupId>

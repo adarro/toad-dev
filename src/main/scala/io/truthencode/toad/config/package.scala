@@ -12,11 +12,11 @@ import org.fusesource.scalate.TemplateEngine
 package object config extends LazyLogging {
 
   object Implicits {
-    implicit val engine = new TemplateEngine
-    implicit val system = Actors.actorSystem
+    implicit lazy val engine = new TemplateEngine
+    implicit lazy val system = Actors.actorSystem
     // Clustering orchestration for Vertx / Camel
    // implicit val mgr = new HazelcastClusterManager
-    implicit val vertx = VertxService.startVertx()
+    implicit lazy val vertx = VertxService.startVertx()
 
   }
 

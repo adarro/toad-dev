@@ -3,6 +3,7 @@ package io.truthencode.toad.verticle
 import java.util.concurrent.TimeUnit
 
 import com.typesafe.scalalogging.slf4j.LazyLogging
+import io.truthencode.toad.SimpleScalaVerticle
 import io.vertx.core.{AsyncResult, Vertx, VertxOptions}
 import io.vertx.spi.cluster.hazelcast.HazelcastClusterManager
 
@@ -17,27 +18,34 @@ import scala.language.postfixOps
   * Created by adarr on 7/7/2016.
   */
 object VertxService extends LazyLogging {
- // import io.truthencode.toad.config.Implicits.mgr
-  def startVertx(timeout : Duration = 180 seconds) = {
+  // import io.truthencode.toad.config.Implicits.mgr
+  def startVertx(timeout: Duration = 180 seconds) = {
     import ExecutionContext.Implicits.global
     val v = startVertXAsync()
     v.onComplete {
-      case Success(x :Vertx) => x
+      case Success(x: Vertx) => x
       case Failure(ex) => throw ex
     }
-    Await.result(v,timeout)
+    Await.result(v, timeout)
   }
 
   def startVertXAsync(): Future[Vertx] = {
     import Event2HandlerImplicits._
     val vLauncher = Promise[Vertx]
-    val options = new VertxOptions()//.setClusterManager(cluster)
+    val options = new VertxOptions() //.setClusterManager(cluster)
 
     Vertx.clusteredVertx(options, (evt: AsyncResult[Vertx]) => {
       if (evt.succeeded()) {
         logger.info("Vertx cluster successfully started")
         val v = evt.result()
         vLauncher.success(v)
+        logger.warn("Using embedded MONGO. Change this before deploying to production!!!")
+        v.deployVerticle("service:io.vertx.vertx-mongo-embedded-db", (ar3: AsyncResult[String]) => {
+          if (ar3.succeeded())
+            logger.info(s"Deployed embedded mongo: ${ar3.result()}")
+          else
+            logger.error("failed to deploy embedded mongo verticle", ar3.cause())
+        })
         v.deployVerticle(new SimpleScalaVerticle, (ar2: AsyncResult[String]) => {
           if (ar2.succeeded())
             logger.info("We have Verticle liftoff :)")

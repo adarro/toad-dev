@@ -12,7 +12,7 @@ import io.truthencode.toad.config.Implicits.engine
 @RunWith(classOf[JUnitRunner])
 class EngineRenderingTest extends FunSpec with Matchers with LazyLogging {
   lazy val fixture = new {   
-    io.truthencode.toad.config.Bootstrap.status()
+
    // val engine = engine
     lazy val api = s"http://$serverIp:$serverPort/api"
     lazy val other = s"http://$serverIp:$serverPort/web"
