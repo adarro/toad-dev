@@ -1,4 +1,4 @@
-package io.truthencode.toad.verticle
+package io.truthencode.toad
 
 import _root_.io.vertx.core.http.HttpServer
 import _root_.io.vertx.core.json.{Json, JsonObject}
@@ -8,8 +8,9 @@ import _root_.io.vertx.ext.web.handler.{BodyHandler, StaticHandler}
 import _root_.io.vertx.ext.web.{Router, RoutingContext}
 import com.typesafe.config.{Config, ConfigFactory}
 import com.typesafe.scalalogging.slf4j.LazyLogging
-import io.truthencode.toad.verticle
+import io.truthencode.toad
 import io.truthencode.toad.verticle.Event2HandlerImplicits._
+import io.truthencode.toad.verticle.Whisky
 
 import scala.collection.JavaConversions._
 
@@ -24,13 +25,13 @@ class SimpleScalaVerticle extends AbstractVerticle {
 
   override def start(fut: Future[Void]) {
     if (config.size > 0) {
-      verticle.SimpleScalaVerticle.log.info("Mongo config")
+      toad.SimpleScalaVerticle.log.info("Mongo config")
       for ((k, v) <- config.getMap) {
-        verticle.SimpleScalaVerticle.log.info(s"k:$k\tv:$v")
+        toad.SimpleScalaVerticle.log.info(s"k:$k\tv:$v")
       }
     }
     else {
-      verticle.SimpleScalaVerticle.log.info("Using default Mongo config")
+      toad.SimpleScalaVerticle.log.info("Using default Mongo config")
     }
     createSomeData((nothing: AsyncResult[Void]) => {
       startWebApp((http: AsyncResult[HttpServer]) => completeStartup(http, fut))
@@ -47,7 +48,7 @@ class SimpleScalaVerticle extends AbstractVerticle {
       }
     })
 
-    router.route("/test/").handler((x: RoutingContext) => verticle.SimpleScalaVerticle.log.info("we did something"))
+    router.route("/test/").handler((x: RoutingContext) => toad.SimpleScalaVerticle.log.info("we did something"))
 
     router.route("/").handler((c: RoutingContext) => {
       c.response.putHeader("content-type", "text/html")
@@ -67,7 +68,7 @@ class SimpleScalaVerticle extends AbstractVerticle {
     router.delete("/api/whiskies/:id").handler(this.deleteOne _)
     val conf: Config = ConfigFactory.load("defaults")
     val port: Int = conf.getInt("server-info.port")
-    verticle.SimpleScalaVerticle.log.info(s"Creating http server on port $port")
+    toad.SimpleScalaVerticle.log.info(s"Creating http server on port $port")
     vertx.createHttpServer.requestHandler(router.accept _).listen(port, next.handle _)
   }
 
@@ -87,7 +88,7 @@ class SimpleScalaVerticle extends AbstractVerticle {
 
   private def addOne(routingContext: RoutingContext) {
     val whisky: Whisky = Json.decodeValue(routingContext.getBodyAsString, classOf[Whisky])
-    mongo.insert(verticle.SimpleScalaVerticle.COLLECTION, whisky.toJson, new Handler[AsyncResult[String]] {
+    mongo.insert(toad.SimpleScalaVerticle.COLLECTION, whisky.toJson, new Handler[AsyncResult[String]] {
       override def handle(r: AsyncResult[String]): Unit = {
         routingContext
           .response()
@@ -106,7 +107,7 @@ class SimpleScalaVerticle extends AbstractVerticle {
     }
     else {
 
-      mongo.findOne(verticle.SimpleScalaVerticle.COLLECTION, new JsonObject().put("_id", id), null, (ar: AsyncResult[JsonObject]) => {
+      mongo.findOne(toad.SimpleScalaVerticle.COLLECTION, new JsonObject().put("_id", id), null, (ar: AsyncResult[JsonObject]) => {
         if (ar.succeeded()) {
           if (ar.result() == null) {
             routingContext.response().setStatusCode(404)
@@ -134,7 +135,7 @@ class SimpleScalaVerticle extends AbstractVerticle {
       routingContext.response.setStatusCode(400).end()
     }
     else {
-      mongo.update(verticle.SimpleScalaVerticle.COLLECTION, new JsonObject().put("_id", id), new JsonObject().put("$set", json), (v: AsyncResult[Void]) => {
+      mongo.update(toad.SimpleScalaVerticle.COLLECTION, new JsonObject().put("_id", id), new JsonObject().put("$set", json), (v: AsyncResult[Void]) => {
         if (v.failed()) {
           routingContext.response().setStatusCode(404).end()
         } else {
@@ -156,7 +157,7 @@ class SimpleScalaVerticle extends AbstractVerticle {
       routingContext.response.setStatusCode(400).end()
     }
     else {
-      mongo.removeOne(verticle.SimpleScalaVerticle.COLLECTION, new JsonObject().put("_id", id), (ar: AsyncResult[Void]) => {
+      mongo.removeOne(toad.SimpleScalaVerticle.COLLECTION, new JsonObject().put("_id", id), (ar: AsyncResult[Void]) => {
         routingContext.response().setStatusCode(204).end()
       })
     }
@@ -164,7 +165,7 @@ class SimpleScalaVerticle extends AbstractVerticle {
 
   private def getAll(routingContext: RoutingContext) {
 
-    mongo.find(verticle.SimpleScalaVerticle.COLLECTION, new JsonObject, (results: AsyncResult[java.util.List[JsonObject]]) => {
+    mongo.find(toad.SimpleScalaVerticle.COLLECTION, new JsonObject, (results: AsyncResult[java.util.List[JsonObject]]) => {
       val objects = results.result()
       import scala.collection.JavaConversions._
       val whiskies = objects.map((o: JsonObject) => {

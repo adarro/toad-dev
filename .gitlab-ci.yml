@@ -1,0 +1,21 @@
+stages:
+  - build
+  - deploy
+
+job_build:
+  stage: build
+  script:
+    - npm install -g grunt-cli
+    - npm rebuild node-sass
+    - npm install
+    - grunt build
+
+job_deploy:
+  stage: deploy
+  script:
+    - apt-get update -yq
+    - apt-get install -y ruby-dev rubygems
+    - gem install dpl
+    - dpl --provider=openshift --user=$OPENSHIFT_USER --password=$OPENSHIFT_PASS --domain=mydomain --app=example
+  only:
+    - master
