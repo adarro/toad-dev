@@ -1,6 +1,10 @@
 var gulp = require('gulp');
 var Server = require('karma').Server;
+var del = require('del');
 
+var realFs = require('fs')
+var gracefulFs = require('graceful-fs')
+gracefulFs.gracefulify(realFs)
 
 var concat         = require('gulp-concat');
 var concatVendor   = require('gulp-concat-vendor');
@@ -68,6 +72,30 @@ gulp.task('tdd', function (done) {
   new Server({
     configFile: __dirname + '/src/test/javascript/karma.conf.js'
   }, done).start();
+});
+
+/**
+ * copy fat jars from build dir to application folder
+ */
+gulp.task('copyFatJars', function() {
+   gulp.src('.target/*fat.{jar}') 
+   .pipe(gulp.dest('./application'));
+});
+
+/**
+ * removes fat jars from application directory
+ */
+gulp.task('cleanFatJars', function() {
+  return del ([
+  './application/*fat.jar'
+  ])
+});
+
+/**
+ * clears fat jars from application dir and copies from build directory
+ **/
+gulp.task('copyJars', function() {
+   runSequence('cleanFatJars','copyFatJars');
 });
 
 // Default Task

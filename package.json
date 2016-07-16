@@ -31,7 +31,9 @@
     "gulp-run-sequence": "0.3.2",
     "stream-series": "0.1.1",
     "gulp-gzip": "1.2.0",
-    "gulp-clone": "1.0.0"
+    "gulp-clone": "1.0.0",
+    "java": "0.7.2",
+    "node-java-maven": "0.0.12"
   },
   "jspm": {
     "dependencies": {
@@ -51,6 +53,23 @@
     "gulp": "^3.9.0",
     "karma-phantomjs-launcher": "~0.2.3",
     "jasmine-core": "^2.4.1",
-    "phantomjs": "^1.9.19"
+    "phantomjs": "^1.9.19",
+    "del": "2.2.1",
+    "browserify": "13.0.1",
+    "browserify-shim": "~3.8.0",
+    "brfs": "^1.2.0",
+    "browserify-watcher": "2.1.1",
+    "karma-browserify": "5.0.5",
+    "watchify": "3.7.0",
+    "graceful-fs": "4.1.4"
+  },
+  "java": {
+    "dependencies": [
+      {
+        "groupId": "org.apache.lucene",
+        "artifactId": "lucene-core",
+        "version": "4.9.0"
+      }
+    ]
   }
 }

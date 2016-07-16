@@ -98,6 +98,9 @@ object Bootstrap extends LazyLogging {
     * webServer.start()
     * */
 
+  /**
+    * Displays configured ip, port and hostname to info logger.
+    */
   def status() = {
     logger.info(s"server configured for @ $serverIp on port $serverPort, and should be available on $hostName")
 

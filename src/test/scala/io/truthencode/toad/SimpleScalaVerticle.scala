@@ -3,7 +3,7 @@ package io.truthencode.toad
 import _root_.io.vertx.core.http.HttpServer
 import _root_.io.vertx.core.json.{Json, JsonObject}
 import _root_.io.vertx.core.{AbstractVerticle, AsyncResult, Handler, _}
-import _root_.io.vertx.ext.mongo.MongoClient
+import _root_.io.vertx.ext.mongo.{MongoClient, MongoClientDeleteResult, MongoClientUpdateResult}
 import _root_.io.vertx.ext.web.handler.{BodyHandler, StaticHandler}
 import _root_.io.vertx.ext.web.{Router, RoutingContext}
 import com.typesafe.config.{Config, ConfigFactory}
@@ -20,7 +20,7 @@ object SimpleScalaVerticle extends LazyLogging {
 }
 
 class SimpleScalaVerticle extends AbstractVerticle {
-  private def mongo = MongoClient.createShared(vertx, config)
+  private[this] lazy val mongo = MongoClient.createShared(vertx, config)
 
 
   override def start(fut: Future[Void]) {
@@ -33,13 +33,13 @@ class SimpleScalaVerticle extends AbstractVerticle {
     else {
       toad.SimpleScalaVerticle.log.info("Using default Mongo config")
     }
-    createSomeData((nothing: AsyncResult[Void]) => {
+    createSomeData((_: AsyncResult[Void]) => {
       startWebApp((http: AsyncResult[HttpServer]) => completeStartup(http, fut))
     }, fut)
   }
 
   private def startWebApp(next: Handler[AsyncResult[HttpServer]]) {
-    SimpleScalaVerticle.log.info("Starting verticle asyncally")
+    SimpleScalaVerticle.log.info("Starting verticle asyncly")
     val router: Router = Router.router(vertx)
     router.route("/").handler(new Handler[RoutingContext] {
       override def handle(ctx: RoutingContext) {
@@ -55,7 +55,7 @@ class SimpleScalaVerticle extends AbstractVerticle {
         .end("<h1>Hello from my first Vert.x 3 application</h1>")
     })
     router.route("/assets/*").handler(StaticHandler.create("assets"))
-    router.get("/api/whiskies").handler(this.getAll _)
+    router.get("/api/whiskies").handler(this.retrieveAll _)
     router.route("/api/whiskies*").handler(new Handler[RoutingContext] {
       override def handle(ctx: RoutingContext) {
         BodyHandler.create()
@@ -63,7 +63,7 @@ class SimpleScalaVerticle extends AbstractVerticle {
     })
     // router.route("/api/whiskies*").handler((c:RoutingContext) => { BodyHandler.create()} )
     router.post("/api/whiskies").handler(this.addOne _)
-    router.get("/api/whiskies/:id").handler(this.getOne _)
+    router.get("/api/whiskies/:id").handler(this.retrieveOne _)
     router.put("/api/whiskies/:id").handler(this.updateOne _)
     router.delete("/api/whiskies/:id").handler(this.deleteOne _)
     val conf: Config = ConfigFactory.load("defaults")
@@ -100,7 +100,7 @@ class SimpleScalaVerticle extends AbstractVerticle {
     })
   }
 
-  private def getOne(routingContext: RoutingContext) {
+  private def retrieveOne(routingContext: RoutingContext) {
     val id: String = routingContext.request.getParam("id")
     if (id == null) {
       routingContext.response.setStatusCode(400).end()
@@ -135,7 +135,7 @@ class SimpleScalaVerticle extends AbstractVerticle {
       routingContext.response.setStatusCode(400).end()
     }
     else {
-      mongo.update(toad.SimpleScalaVerticle.COLLECTION, new JsonObject().put("_id", id), new JsonObject().put("$set", json), (v: AsyncResult[Void]) => {
+      mongo.updateCollection(toad.SimpleScalaVerticle.COLLECTION, new JsonObject().put("_id", id), new JsonObject().put("$set", json), (v: AsyncResult[MongoClientUpdateResult]) => {
         if (v.failed()) {
           routingContext.response().setStatusCode(404).end()
         } else {
@@ -157,13 +157,18 @@ class SimpleScalaVerticle extends AbstractVerticle {
       routingContext.response.setStatusCode(400).end()
     }
     else {
-      mongo.removeOne(toad.SimpleScalaVerticle.COLLECTION, new JsonObject().put("_id", id), (ar: AsyncResult[Void]) => {
-        routingContext.response().setStatusCode(204).end()
+      mongo.removeDocument(toad.SimpleScalaVerticle.COLLECTION, new JsonObject().put("_id", id), (ar: AsyncResult[MongoClientDeleteResult]) => {
+        if (ar.succeeded())
+          routingContext.response().setStatusCode(204).end()
+        else {
+          val t = ar.result()
+          routingContext.response().setStatusMessage(s"removed ${t.getRemovedCount} documents").setStatusCode(400).end()
+        }
       })
     }
   }
 
-  private def getAll(routingContext: RoutingContext) {
+  private def retrieveAll(routingContext: RoutingContext) {
 
     mongo.find(toad.SimpleScalaVerticle.COLLECTION, new JsonObject, (results: AsyncResult[java.util.List[JsonObject]]) => {
       val objects = results.result()

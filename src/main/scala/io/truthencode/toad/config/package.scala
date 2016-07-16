@@ -6,16 +6,22 @@ import configs.Result.{Failure, Success}
 import configs.syntax.ConfigOps
 import io.truthencode.toad.actor.Actors
 import io.truthencode.toad.verticle.VertxService
-import io.vertx.spi.cluster.hazelcast.HazelcastClusterManager
 import org.fusesource.scalate.TemplateEngine
 
+/**
+  * Stores and / or retrieves general configuration information used by the sub-systems.
+  * Also used as a base reference for Implicit objects.
+  */
 package object config extends LazyLogging {
 
+  /**
+    * Implicit services such as the template engine, Default Akka Actor system, Vertx main instance etc.
+    */
   object Implicits {
     implicit lazy val engine = new TemplateEngine
     implicit lazy val system = Actors.actorSystem
     // Clustering orchestration for Vertx / Camel
-   // implicit val mgr = new HazelcastClusterManager
+    // implicit val mgr = new HazelcastClusterManager
     implicit lazy val vertx = VertxService.startVertx()
 
   }

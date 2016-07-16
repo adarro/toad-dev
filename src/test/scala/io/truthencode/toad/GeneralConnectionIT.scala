@@ -3,6 +3,7 @@ package io.truthencode.toad
 import com.netaporter.uri.dsl.{stringToUriDsl, uriToString, uriToUriOps}
 import com.typesafe.scalalogging.slf4j.LazyLogging
 import io.truthencode.toad.config.{serverIp, serverPort}
+import io.truthencode.toad.verticle.WebSSLCapableServerVerticle
 import org.apache.http.client.methods.HttpGet
 import org.apache.http.impl.client.HttpClients
 import org.junit.runner.RunWith
@@ -15,13 +16,25 @@ import scala.language.reflectiveCalls
 class GeneralConnectionIT extends FunSpec with Matchers with LazyLogging {
 
   lazy val fixture = new {
-    io.truthencode.toad.config.Bootstrap.status()
+    io.truthencode.toad.config.Bootstrap.init()
+
     lazy val api = s"http://$serverIp:$serverPort/api"
     lazy val other = s"http://$serverIp:$serverPort/web"
   }
 
   describe("non-API filter") {
-    it("Should reject websocket calls on unathorized paths")(pending)
+    it("Should reject websocket calls on unauthorized paths")(pending)
+  }
+  describe("Vertx connections") {
+    it("Should support SSL") {
+      import io.truthencode.toad.config.Implicits._
+      val vert = new WebSSLCapableServerVerticle
+      vertx.deployVerticle(vert)
+
+      //      vertx.deployVerticle(vert,(result:AsyncResult[String]) => {
+      //      assumeTrue( result.succeeded())
+      //      })
+    }
   }
 
   describe("Non-existant resources") {

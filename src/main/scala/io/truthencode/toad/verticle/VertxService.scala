@@ -1,7 +1,9 @@
 package io.truthencode.toad.verticle
 
 import com.typesafe.scalalogging.slf4j.LazyLogging
-import io.vertx.core.{AsyncResult, Vertx, VertxOptions}
+import io.truthencode.toad.config.DbInfo
+import io.vertx.core.json.JsonObject
+import io.vertx.core.{AsyncResult, DeploymentOptions, Vertx, VertxOptions}
 
 import scala.concurrent.{Await, Future, Promise}
 import scala.language.postfixOps
@@ -16,16 +18,29 @@ object VertxService extends LazyLogging {
 
   val defaultDuration = 180 seconds
 
+  /**
+    * Initializes the Vertx engine synchronously
+    *
+    * @note internally calls [[startVertXAsync()]] with a blocking call.
+    * @param timeout maximum wait time to block before failing. (defaults to [[defaultDuration]]
+    * @return A Vertx instance or execption in the case of failure.
+    */
   def startVertx(timeout: Duration = defaultDuration) = {
     import scala.concurrent.ExecutionContext.Implicits.global
     val v = startVertXAsync()
     v.onComplete {
       case Success(x: Vertx) => x
-      case Failure(ex) => throw ex
+      case Failure(ex) => logger.error("Failed to start Vertx", ex)
+        throw ex
     }
     Await.result(v, timeout)
   }
 
+  /**
+    * Initializes a clustered vertx instance Asynchronously
+    *
+    * @return Initialized Future containing Vertx instance or exception
+    */
   def startVertXAsync(): Future[Vertx] = {
     import Event2HandlerImplicits._
     val vLauncher = Promise[Vertx]
@@ -37,7 +52,11 @@ object VertxService extends LazyLogging {
         val v = evt.result()
         vLauncher.success(v)
         logger.warn("Using embedded MONGO. Change this before deploying to production!!!")
-        v.deployVerticle("service:io.vertx.vertx-mongo-embedded-db", (ar3: AsyncResult[String]) => {
+        // config.get[]
+        val dbConfig = DbInfo.apply
+        val jsOpt = new JsonObject().put("port", dbConfig.port)
+        val workerOpts = new DeploymentOptions().setConfig(jsOpt).setWorker(true)
+        v.deployVerticle("service:io.vertx.ext.embeddedmongo.EmbeddedMongoVerticle", workerOpts, (ar3: AsyncResult[String]) => {
           if (ar3.succeeded())
             logger.info(s"Deployed embedded mongo: ${ar3.result()}")
           else

@@ -20,13 +20,20 @@ import java.io.Serializable;
  * Created by Andre White on 7/2/2016.
  */
 class Server {
-  //Private constructor
+  /**
+   * Private Constructor Server creates a new Server instance.
+   */
   private Server() {
   }
 
   private static Server server;
 
-  public synchronized static Server getServer() {
+  /**
+   * Retrieves a singleton Server instance.
+   *
+   * @return the server (type Server) of this Server object.
+   */
+  private synchronized static Server getServer() {
     if (server == null) {
       server = new Server();
     }
@@ -35,6 +42,9 @@ class Server {
 
   private final Logger log = LoggerFactory.getLogger(Server.class);
 
+  /**
+   * Initializes Vertx in clustered a environment.
+   */
   private void initVertxCluster() {
     HazelcastClusterManager clusterManager = new HazelcastClusterManager();
 
@@ -62,7 +72,7 @@ class Server {
           }
         });
       } else {
-        log.error("Failed to Initialize Vertx Cluster: " , res.cause());
+        log.error("Failed to Initialize Vertx Cluster: ", res.cause());
       }
     });
 
@@ -83,23 +93,43 @@ class Server {
     }));
   }
 
+  /**
+   * Internally calls {@link #initVertxCluster()}
+   */
   private void StartVertX() {
     initVertxCluster();
   }
 
+  /**
+   * Starts the Vertx server.
+   *
+   * @implNote Internally calls {@link #initVertxCluster()} which does not use the Bootstrap to start the cluster.
+   */
   static void Start() {
     Server.getServer().StartVertX();
   }
 
+  /**
+   * Internal utility class to handle shutting down Hazelcast instances
+   */
   private static class ShutdownMember implements Runnable, HazelcastInstanceAware, Serializable {
-
+    /** Field serialVersionUID @see {@link Serializable}  */
+    static final long serialVersionUID = 42L;
     private HazelcastInstance node;
 
+    /**
+     * Calls shutdown on the current instance node.
+     */
     @Override
     public void run() {
       node.getLifecycleService().shutdown();
     }
 
+    /**
+     * Sets the node to the current instance.
+     *
+     * @param node The Current (live) node.
+     */
     @Override
     public void setHazelcastInstance(HazelcastInstance node) {
       this.node = node;

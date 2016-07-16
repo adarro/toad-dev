@@ -34,7 +34,7 @@ public class MyFirstVerticle extends AbstractVerticle {
   /**
    * This method is called when the verticle is deployed. It creates a HTTP
    * server and registers a simple request handler.
-   * <p/>
+   * <p>
    * Notice the `listen` method. It passes a lambda checking the port binding
    * result. When the HTTP server has been bound on the port, it call the
    * `complete` method to inform that the starting has completed. Else it
@@ -68,6 +68,11 @@ public class MyFirstVerticle extends AbstractVerticle {
       fut);
   }
 
+  /**
+   * Method startWebApp ...
+   *
+   * @param next Handler<AsyncResult<HttpServer>> used to chain next deployment or event
+   */
   private void startWebApp(Handler<AsyncResult<HttpServer>> next) {
     // Create a router object.
     Router router = Router.router(vertx);
@@ -102,6 +107,13 @@ public class MyFirstVerticle extends AbstractVerticle {
       port, next);
   }
 
+  /**
+   * Listener used to handle completion events.
+   *
+   * Applies result to future.
+   * @param http current status
+   * @param fut result on completion of http
+   */
   private void completeStartup(AsyncResult<HttpServer> http, Future<Void> fut) {
     if (http.succeeded()) {
       fut.complete();
@@ -110,6 +122,10 @@ public class MyFirstVerticle extends AbstractVerticle {
     }
   }
 
+  /**
+   * Cleans up resources upon stop request, specifically the mongo instance.
+   * @throws Exception when processes fail to dispose.
+   */
   @Override
   public void stop() throws Exception {
     mongo.close();
@@ -167,7 +183,7 @@ public class MyFirstVerticle extends AbstractVerticle {
     if (id == null || json == null) {
       routingContext.response().setStatusCode(400).end();
     } else {
-      mongo.update(
+      mongo.updateCollection(
         COLLECTION,
         new JsonObject().put("_id", id), // Select a unique document
         // The update syntax: {$set, the json object containing the
@@ -194,7 +210,7 @@ public class MyFirstVerticle extends AbstractVerticle {
     if (id == null) {
       routingContext.response().setStatusCode(400).end();
     } else {
-      mongo.removeOne(COLLECTION, new JsonObject().put("_id", id),
+      mongo.removeDocuments(COLLECTION, new JsonObject().put("_id", id),
         ar -> routingContext.response().setStatusCode(204).end());
     }
   }
