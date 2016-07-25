@@ -1,13 +1,11 @@
 package io.truthencode.toad
 
-import org.junit.runner.RunWith
-import org.scalatest.{ FunSpec, Matchers }
-import org.scalatest.junit.JUnitRunner
-
 import com.typesafe.scalalogging.slf4j.LazyLogging
-
-import io.truthencode.toad.config.{ serverIp, serverPort }
 import io.truthencode.toad.config.Implicits.engine
+import io.truthencode.toad.config.{serverIp, serverPort}
+import org.junit.runner.RunWith
+import org.scalatest.junit.JUnitRunner
+import org.scalatest.{FunSpec, Matchers}
 
 @RunWith(classOf[JUnitRunner])
 class EngineRenderingTest extends FunSpec with Matchers with LazyLogging {
@@ -26,6 +24,7 @@ class EngineRenderingTest extends FunSpec with Matchers with LazyLogging {
       val data = engine.layout("/chat2.jade")
       logger.info(data)
     }
+
     it("Should support and find jade variables") {
       import scala.language.reflectiveCalls
       val f = fixture
