@@ -5,6 +5,6 @@ package io.truthencode.toad.verticle
   */
 object MergeOption extends Enumeration {
 type MergeOption = Value
- val ADD,MERGE,REPLACE = Value
+ val MERGE,REPLACE = Value
 }
 

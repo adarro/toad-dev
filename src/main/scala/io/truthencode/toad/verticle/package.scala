@@ -1,9 +1,14 @@
 package io.truthencode.toad
 
-
-import _root_.io.vertx.core.Handler
+import _root_.io.vertx.core.{DeploymentOptions, Handler}
+import com.typesafe.config._
+import com.typesafe.scalalogging.slf4j.LazyLogging
+import io.truthencode.toad.config.CommonImplicits._
+import io.truthencode.toad.config.cfg
+import io.truthencode.toad.verticle.MergeOption._
 import io.vertx.core.json.JsonObject
 
+import scala.language.implicitConversions
 
 
 /**
@@ -15,9 +20,6 @@ package object verticle {
     * Vert.x specific implicits mostly used for Java / Scala compatibility.
     */
   object Event2HandlerImplicits {
-
-    import scala.language.implicitConversions
-
     /**
       * Maps java events to scala handlers used mostly to transliterate Vert.x Java lambdas to Scala.
       *
@@ -49,8 +51,25 @@ package object verticle {
     implicit def asyncToHandler[T, S](event: (T) => S): Handler[T] = new Handler[T] {
       override def handle(dEvent: T): Unit = event(dEvent)
     }
+  }
 
-    implicit def jsonToString(j: JsonObject): String = j.encodePrettily()
+  implicit class DeploymentOptionMerger(helper: DeploymentOptions) extends LazyLogging {
+
+    def mergeConfig(opt: Option[Config] = None, mergeOption: MergeOption = MergeOption.MERGE): DeploymentOptions = {
+      val json: JsonObject = opt match {
+        case Some(x) => x.root
+        case None => cfg.root()
+      }
+
+      mergeOption match {
+        case REPLACE => helper.setConfig(json)
+        case MERGE => Option(helper.getConfig) match {
+          case Some(x) => helper.setConfig(helper.getConfig.mergeIn(json))
+          case _ => logger.warn("Specified option to merge existing config will be a REPLACE operation because the base configuration is null")
+            helper.setConfig(json)
+        }
+      }
+    }
   }
 
 }

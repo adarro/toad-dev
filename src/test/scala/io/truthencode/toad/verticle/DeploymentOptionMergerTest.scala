@@ -19,8 +19,6 @@ class DeploymentOptionMergerTest extends FunSpec with Matchers with LazyLogging 
   describe("mergeConfig") {
     it("should add a default configuration to deployOptions") {
       new DeploymentConfiguration {
-        //  assume(Option(dOptions.getConfig).isDefined)
-        //   assume(cfgDefault.isDefined)
         val actual = dOptions.mergeConfig(cfgDefault)
         actual.getConfig should not be empty
       }

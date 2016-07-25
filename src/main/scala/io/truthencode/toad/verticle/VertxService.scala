@@ -1,7 +1,9 @@
 package io.truthencode.toad.verticle
 
 import com.typesafe.scalalogging.slf4j.LazyLogging
-import io.truthencode.toad.config.DbInfo
+import io.truthencode.toad.config.CommonImplicits._
+import io.truthencode.toad.config.{DbInfo, cfg}
+import io.vertx.core.dns.AddressResolverOptions
 import io.vertx.core.json.JsonObject
 import io.vertx.core.{AsyncResult, DeploymentOptions, Vertx, VertxOptions}
 
@@ -36,6 +38,10 @@ object VertxService extends LazyLogging {
     Await.result(v, timeout)
   }
 
+  private def toBilliSeconds(l: Long) = {
+    l * 1000 * 1000000
+  }
+
   /**
     * Initializes a clustered vertx instance Asynchronously
     *
@@ -44,15 +50,30 @@ object VertxService extends LazyLogging {
   def startVertXAsync(): Future[Vertx] = {
     import Event2HandlerImplicits._
     val vLauncher = Promise[Vertx]
-    val options = new VertxOptions() //.setClusterManager(cluster)
 
+    val addOpts = new AddressResolverOptions()
+      .setCacheMinTimeToLive(90) //90 second min cache ttl
+      .setCacheNegativeTimeToLive(90)
+    // FIXME: change MaxEventLoopExecutionTime back to a more reasonable number or fix blocking to accept the default
+    val blockDelay: Long = toBilliSeconds(10)
+    val options = new VertxOptions()
+      .setMaxEventLoopExecuteTime(blockDelay)
+      .setAddressResolverOptions(addOpts)
     Vertx.clusteredVertx(options, (evt: AsyncResult[Vertx]) => {
       if (evt.succeeded()) {
         logger.info("Vertx cluster successfully started")
         val v = evt.result()
+        logger.info("Creating base context")
+        // FIXME: currently merging from a typesafe config that may contain extra data (i.e. akka) should prune this closer to production
+
+        v.getOrCreateContext().config().mergeIn(cfg.root)
         vLauncher.success(v)
+        val sslVerticle = classOf[WebSSLCapableServerVerticle].getName
+        logger.info("Launching SSL Verticle")
+        v.deployVerticle(sslVerticle, new DeploymentOptions().mergeConfig())
+        // FIXME: only launch embedded mongo in non-production
         logger.warn("Using embedded MONGO. Change this before deploying to production!!!")
-        // config.get[]
+
         val dbConfig = DbInfo.apply
         val jsOpt = new JsonObject().put("port", dbConfig.port)
         val workerOpts = new DeploymentOptions().setConfig(jsOpt).setWorker(true)
@@ -62,13 +83,7 @@ object VertxService extends LazyLogging {
           else
             logger.error("failed to deploy embedded mongo verticle", ar3.cause())
         })
-        //        v.deployVerticle(new SimpleScalaVerticle, (ar2: AsyncResult[String]) => {
-        //          if (ar2.succeeded())
-        //            logger.info("We have Verticle liftoff :)")
-        //          else {
-        //            logger.error("Verticle-ly challenged!", ar2.cause())
-        //          }
-        //        })
+
       } else {
         logger.info("Failed to initialize Vertx cluster")
         vLauncher.failure(evt.cause())

@@ -9,6 +9,7 @@ import _root_.io.vertx.ext.web.{Router, RoutingContext}
 import com.typesafe.config.{Config, ConfigFactory}
 import com.typesafe.scalalogging.slf4j.LazyLogging
 import io.truthencode.toad
+import io.truthencode.toad.config.CommonImplicits._
 import io.truthencode.toad.verticle.Event2HandlerImplicits._
 import io.truthencode.toad.verticle.Whisky
 
@@ -101,13 +102,8 @@ class SimpleScalaVerticle extends AbstractVerticle {
   }
 
   private def retrieveOne(routingContext: RoutingContext) {
-    val id: String = routingContext.request.getParam("id")
-    if (id == null) {
-      routingContext.response.setStatusCode(400).end()
-    }
-    else {
-
-      mongo.findOne(toad.SimpleScalaVerticle.COLLECTION, new JsonObject().put("_id", id), null, (ar: AsyncResult[JsonObject]) => {
+    Option( routingContext.request.getParam("id")) match {
+      case Some(id) => mongo.findOne(toad.SimpleScalaVerticle.COLLECTION, new JsonObject().put("_id", id), null, (ar: AsyncResult[JsonObject]) => {
         if (ar.succeeded()) {
           if (ar.result() == null) {
             routingContext.response().setStatusCode(404)
@@ -125,6 +121,7 @@ class SimpleScalaVerticle extends AbstractVerticle {
           routingContext.response().setStatusCode(404).end()
         }
       })
+      case None => routingContext.response.setStatusCode(400).end()
     }
   }
 
@@ -152,12 +149,9 @@ class SimpleScalaVerticle extends AbstractVerticle {
   }
 
   private def deleteOne(routingContext: RoutingContext) {
-    val id: String = routingContext.request.getParam("id")
-    if (id == null) {
-      routingContext.response.setStatusCode(400).end()
-    }
-    else {
-      mongo.removeDocument(toad.SimpleScalaVerticle.COLLECTION, new JsonObject().put("_id", id), (ar: AsyncResult[MongoClientDeleteResult]) => {
+    val x: Option[String] = routingContext.request.getParam("id")
+    x match {
+      case Some(id) => mongo.removeDocument(toad.SimpleScalaVerticle.COLLECTION, new JsonObject().put("_id", id), (ar: AsyncResult[MongoClientDeleteResult]) => {
         if (ar.succeeded())
           routingContext.response().setStatusCode(204).end()
         else {
@@ -165,6 +159,7 @@ class SimpleScalaVerticle extends AbstractVerticle {
           routingContext.response().setStatusMessage(s"removed ${t.getRemovedCount} documents").setStatusCode(400).end()
         }
       })
+      case None => routingContext.response.setStatusCode(400).end()
     }
   }
 
@@ -209,14 +204,15 @@ class SimpleScalaVerticle extends AbstractVerticle {
     }
 
     val countResult = (count: AsyncResult[java.lang.Long]) => {
-      if (count.succeeded()) if (count.result() == 0) {
-        // no whiskies, insert data
-        mongo.insert(SimpleScalaVerticle.COLLECTION, bowmore.toJson, aResult)
-      }
-      else {
-        //  next.handle(Future[Void].succeededFuture())
-        next.handle(ok[Void])
-      }
+      if (count.succeeded())
+        if (count.result() == 0) {
+          // no whiskies, insert data
+          mongo.insert(SimpleScalaVerticle.COLLECTION, bowmore.toJson, aResult)
+        }
+        else {
+          //  next.handle(Future[Void].succeededFuture())
+          next.handle(ok[Void])
+        }
       else {
         // report the error
         fut.fail(count.cause())
