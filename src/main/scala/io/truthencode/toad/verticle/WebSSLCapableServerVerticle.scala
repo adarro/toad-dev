@@ -19,7 +19,6 @@ import sun.security.tools.keytool.CertAndKeyGen
 import sun.security.x509.X500Name
 
 
-
 /**
   * A [[io.vertx.core.Verticle]] which starts up the HTTP server for the web application UI. Based on the given
   * configuration, the web server may be configured for SSL using a self-generated SSL cert or a provided SSL certificate
@@ -41,11 +40,17 @@ class WebSSLCapableServerVerticle extends AbstractVerticle with LazyLogging {
   override def start(startFuture: Future[Void]) = {
     val config = context.config().getJsonObject("webserver")
     val authCfg = context.config().getJsonObject("authentication")
-
+    Option(config) match {
+      case Some(cfg) => logger.info("SSL Config is not null")
+      case None =>
+        val ex = new IllegalArgumentException("Missing required SSL Configuration parameters in io.vertx.core.Context.config()")
+        logger.error("Authorization configuration was null, please supply a valid JsonObject via DeployOptions.setConfig when deploying this Verticle")
+        throw ex
+    }
     val bindAddress = config.getString("bind-address", "0.0.0.0")
     val bindPort = config.getInteger("bind-port", 8080)
     val webRoot: String = config.getString("webroot", "webroot/")
-
+    logger.info(s"Using webroot => $webRoot")
     val router = Router.router(vertx)
     val sockjs = SockJSHandler.create(vertx)
     val opts: BridgeOptions = new BridgeOptions()
@@ -139,10 +144,11 @@ class WebSSLCapableServerVerticle extends AbstractVerticle with LazyLogging {
               startFuture.fail("A certificate file was provided, but a password for that file was not.")
             }
           } else try {
-            // Generate a self-signed key pair and certificate.
+            // Generate a self-signed key pair and certificate
+            logger.info("Attempting self-signed SSL")
             val store = KeyStore.getInstance("JKS")
             store.load(null, null)
-            val keypair = new CertAndKeyGen("RSA", "SHA1WithRSA", null)
+            val keypair = new CertAndKeyGen("RSA", "SHA256WithRSA", null)
             val x500Name = new X500Name("localhost", "IT", "unknown", "unknown", "unknown", "unknown")
             keypair.generate(1024)
             val privKey = keypair.getPrivateKey
@@ -164,7 +170,7 @@ class WebSSLCapableServerVerticle extends AbstractVerticle with LazyLogging {
       val rslt: Handler[AsyncResult[HttpServerOptions]] = (result: AsyncResult[HttpServerOptions]) => {
         if (!result.failed()) {
           vertx.createHttpServer(result.result()).requestHandler(router.accept _).listen(bindPort, bindAddress)
-          logger.info("SSL Web server now listening")
+          logger.info(s"SSL Web server now listening on @ $bindAddress:$bindPort")
           startFuture.complete()
         }
       }
@@ -174,7 +180,7 @@ class WebSSLCapableServerVerticle extends AbstractVerticle with LazyLogging {
     } else {
       // No SSL requested, start a non-SSL HTTP server.
       vertx.createHttpServer().requestHandler(router.accept _).listen(bindPort, bindAddress)
-      logger.info("Web server now listening")
+      logger.info("(Non-SSL) Web server now listening")
       startFuture.complete()
     }
   }

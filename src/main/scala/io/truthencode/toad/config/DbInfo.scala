@@ -13,7 +13,7 @@ object DbInfo extends LazyLogging {
   def apply(host: String, port: Int, uuid: String, userId: String, pwd: String, url: String): DbInfo = DbInfo(host, port, uuid, userId, pwd.toCharArray, url)
 
   def apply: DbInfo = {
-    val cfg = if (config.isResolved) config else config.resolve
+    //    val dbCfg = if (cfg.isResolved) cfg else cfg.resolve
     cfg.get[DbInfo]("db-info") match {
       case Success(x) => DbInfo(x.host, x.port, x.uuid, x.userId, x.pwd, x.url)
       case Failure(x) =>

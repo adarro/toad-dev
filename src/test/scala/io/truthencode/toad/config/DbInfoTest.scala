@@ -33,20 +33,20 @@ class DbInfoTest extends FunSpec with Matchers with LazyLogging {
           |}
         """.stripMargin)
       assumeTrue("safety check was not resolved", check.isResolved)
-      assumeTrue("Config was not resolved", config.isResolved)
-      noException should be thrownBy config.checkValid(check, "db-info")
+      assumeTrue("Config was not resolved", cfg.isResolved)
+      noException should be thrownBy cfg.checkValid(check, "db-info")
     }
 
     it("should have sensible defaults") {
       import configs.syntax.ConfigOps
       //   val (host,port,uuid,userId,pwd,url) =
 
-      val tCfg = Try(config.resolve) match {
+      val tCfg = Try(cfg.resolve) match {
         case x: Try[Config] => Some(x.get)
         case _ => None
       }
       tCfg should not be empty
-      val cfg = tCfg.get
+      val myCfg = tCfg.get
       val result = cfg.get[DbInfo]("db-info") match {
         case Success(x) => Some(DbInfo(x.host, x.port, x.uuid, x.userId, x.pwd, x.url))
         case Failure(x) =>

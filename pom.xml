@@ -25,7 +25,7 @@
     <!-- Clustering -->
     <hazelcast.version>3.6.2</hazelcast.version>
     <!-- vertx -->
-    <vertx.version>3.3.1</vertx.version>
+    <vertx.version>3.3.2</vertx.version>
     <!-- Camel -->
     <camel.version>2.17.1</camel.version>
     <!-- Scala goodness -->
