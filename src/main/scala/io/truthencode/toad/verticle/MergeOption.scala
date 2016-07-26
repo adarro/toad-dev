@@ -1,7 +1,7 @@
 package io.truthencode.toad.verticle
 
 /**
-  * Created by adarr on 7/21/2016.
+  * Simple enumeration used to determine add vs replace
   */
 object MergeOption extends Enumeration {
 type MergeOption = Value

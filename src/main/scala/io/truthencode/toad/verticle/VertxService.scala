@@ -2,9 +2,8 @@ package io.truthencode.toad.verticle
 
 import com.typesafe.scalalogging.slf4j.LazyLogging
 import io.truthencode.toad.config.CommonImplicits._
-import io.truthencode.toad.config.{DbInfo, cfg}
+import io.truthencode.toad.config.cfg
 import io.vertx.core.dns.AddressResolverOptions
-import io.vertx.core.json.JsonObject
 import io.vertx.core.{AsyncResult, DeploymentOptions, Vertx, VertxOptions}
 
 import scala.concurrent.{Await, Future, Promise}
@@ -71,18 +70,6 @@ object VertxService extends LazyLogging {
         val sslVerticle = classOf[WebSSLCapableServerVerticle].getName
         logger.info("Launching SSL Verticle")
         v.deployVerticle(sslVerticle, new DeploymentOptions().mergeConfig())
-        // FIXME: only launch embedded mongo in non-production
-        logger.warn("Using embedded MONGO. Change this before deploying to production!!!")
-
-        val dbConfig = DbInfo.apply
-        val jsOpt = new JsonObject().put("port", dbConfig.port)
-        val workerOpts = new DeploymentOptions().setConfig(jsOpt).setWorker(true)
-        v.deployVerticle("service:io.vertx.ext.embeddedmongo.EmbeddedMongoVerticle", workerOpts, (ar3: AsyncResult[String]) => {
-          if (ar3.succeeded())
-            logger.info(s"Deployed embedded mongo: ${ar3.result()}")
-          else
-            logger.error("failed to deploy embedded mongo verticle", ar3.cause())
-        })
 
       } else {
         logger.info("Failed to initialize Vertx cluster")

@@ -55,11 +55,14 @@ class GeneralConnectionIT extends FunSpec with Matchers with LazyLogging {
       logger.info("Launched vert")
       val cOpts = new HttpClientOptions()
         .setDefaultPort(8080)
+        .setTrustAll(true)
       val client = vertx.createHttpClient(cOpts)
 
       client.getNow(f.subPath("/"), (hcr: HttpClientResponse) => {
         hcr.bodyHandler((buf: Buffer) => {
-          logger.info(s"buff => ${buf.length()}")
+          val rslt = buf.getBytes
+
+          logger.info(s"buff => $rslt")
         })
       })
 

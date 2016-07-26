@@ -8,7 +8,8 @@ jdk:
 - openjdk8
 script:
 - mvn scoverage:report
-
+addons:
+  sauce_connect: true
 after_success:
   - bash <(curl -s https://codecov.io/bash)
   

@@ -14,7 +14,7 @@ import io.vertx.ext.auth.AuthProvider
 import io.vertx.ext.auth.shiro.{ShiroAuth, ShiroAuthOptions, ShiroAuthRealmType}
 import io.vertx.ext.web.Router
 import io.vertx.ext.web.handler.StaticHandler
-import io.vertx.ext.web.handler.sockjs.{BridgeOptions, PermittedOptions, SockJSHandler}
+import io.vertx.ext.web.handler.sockjs.{BridgeOptions, SockJSHandler}
 import sun.security.tools.keytool.CertAndKeyGen
 import sun.security.x509.X500Name
 
@@ -28,7 +28,7 @@ import sun.security.x509.X500Name
   *
   * @author <a href="https://github.com/InfoSec812">Deven Phillips</a>
   */
-class WebSSLCapableServerVerticle extends AbstractVerticle with LazyLogging {
+class WebSSLCapableServerVerticle extends AbstractVerticle with DefaultBridgeOptions with LazyLogging {
 
   /**
     * Start this [[io.vertx.core.Verticle]]asynchronously and notify the deploying verticle on success or failure
@@ -53,45 +53,7 @@ class WebSSLCapableServerVerticle extends AbstractVerticle with LazyLogging {
     logger.info(s"Using webroot => $webRoot")
     val router = Router.router(vertx)
     val sockjs = SockJSHandler.create(vertx)
-    val opts: BridgeOptions = new BridgeOptions()
-      // Allow inbound events going to the terminal session
-      .addInboundPermitted(new PermittedOptions()
-      .setAddressRegex("^terminal\\.to\\.server\\..*$"))
-      .addInboundPermitted(new PermittedOptions()
-        .setAddressRegex("^delegate\\.control\\..*$")
-        .setRequiredAuthority("session"))
-      // Allow inbound events revoking control from invited collaborator
-      .addInboundPermitted(new PermittedOptions()
-      .setAddressRegex("^revoke\\.control\\..*$")
-      .setRequiredAuthority("session"))
-      // Allow inbound events for chat messages coming from the client for a given session
-      .addInboundPermitted(new PermittedOptions()
-      .setAddressRegex("^chat\\.to\\.server\\..*$")
-      .setRequiredAuthority("session"))
-      // Allow inbound events requesting control of a shared terminal
-      .addInboundPermitted(new PermittedOptions()
-      .setAddressRegex("^request\\.control\\..*$")
-      .setRequiredAuthority("session"))
-      // Allow inbound events releasing control of a shared terminal
-      .addInboundPermitted(new PermittedOptions()
-      .setAddressRegex("^release\\.control\\..*$")
-      .setRequiredAuthority("session"))
-      // Allow outbound events from the terminal session to the UI
-      .addOutboundPermitted(new PermittedOptions()
-      .setAddressRegex("^server\\.to\\.terminal\\..*$")
-      .setRequiredAuthority("session"))
-      // Allow outbound events from the server to participants in a session's chat
-      .addOutboundPermitted(new PermittedOptions()
-      .setAddressRegex("^server\\.to\\.chat\\..*$")
-      .setRequiredAuthority("session"))
-      // Allow outbound events to the UI indicating that control was granted
-      .addOutboundPermitted(new PermittedOptions()
-      .setAddressRegex("^control\\.granted\\..*$")
-      .setRequiredAuthority("session"))
-      // Allow outbound events to the UI indicating that control was revoked
-      .addOutboundPermitted(new PermittedOptions()
-      .setAddressRegex("^control\\.revoked\\..*$")
-      .setRequiredAuthority("session"))
+    val opts: BridgeOptions = bridgeOptions
     sockjs.bridge(opts)
 
     var authProvider: AuthProvider = null

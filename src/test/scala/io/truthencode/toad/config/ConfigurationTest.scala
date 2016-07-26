@@ -1,5 +1,6 @@
 package io.truthencode.toad.config
 
+import com.typesafe.config.ConfigFactory
 import com.typesafe.scalalogging.slf4j.LazyLogging
 import io.truthencode.toad.config.CommonImplicits._
 import io.truthencode.toad.verticle.DeploymentOptionMerger
@@ -18,7 +19,7 @@ import scala.collection.JavaConverters._
 class ConfigurationTest extends FunSpec with Matchers with LazyLogging {
   describe("Typesafe Configuration") {
     it("should interpolate with Vert.x Configuration (Json)") {
-      val key = "webserver"
+      val key = "testwebserver"
       val control = new JsonObject().put(key,
         new JsonObject()
           .put("bind-address", "127.0.0.1")
@@ -27,7 +28,7 @@ class ConfigurationTest extends FunSpec with Matchers with LazyLogging {
           .put("ssl", true)
       )
       val expected = control.getJsonObject(key)
-      val actual: JsonObject = cfg.getValue(key)
+      val actual: JsonObject = ConfigFactory.load("sample").getValue(key)
       actual shouldEqual expected
     }
     it("should add typesafeconfig to deploymentoptions") {

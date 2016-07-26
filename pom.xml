@@ -239,6 +239,12 @@
   </dependencies>
   <dependencyManagement>
     <dependencies>
+      <!-- Service Locator / Injection -->
+      <dependency>
+        <groupId>net.java.sezpoz</groupId>
+        <artifactId>sezpoz</artifactId>
+        <version>1.11</version>
+      </dependency>
       <!-- Clustering -->
       <dependency>
         <groupId>com.hazelcast</groupId>
