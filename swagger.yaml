@@ -199,7 +199,7 @@ definitions:
         type: array
         items:
           type: string
-        description: Race required to use item without a UMD Check
+          description: Race required to use item without a UMD Check
       abs_required_race:
         description: Race absolutely required (no bypass) to use item
         type: array
@@ -215,7 +215,9 @@ definitions:
         type: integer
         format: int32
       abs_min_level:
-       description: 'Altered minimum level usually caused as a side-effect of additional enchantments which may increase the requirement'
+        description: 'Altered minimum level usually caused as a side-effect of additional enchantments which may increase the requirement'
+        type: integer
+        format: int32
       required_trait:
         description: Trait such as Lawful needed to use item
         type: array
