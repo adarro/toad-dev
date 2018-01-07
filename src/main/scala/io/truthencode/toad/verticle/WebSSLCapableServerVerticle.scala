@@ -5,11 +5,10 @@ import java.security._
 import java.security.cert.{Certificate, CertificateException}
 import java.util.Date
 
-import com.typesafe.scalalogging.slf4j.LazyLogging
-import io.truthencode.toad.verticle.Event2HandlerImplicits._
+import com.typesafe.scalalogging.LazyLogging
+import io.vertx.core.{AbstractVerticle, AsyncResult, Future, Handler}
 import io.vertx.core.http.HttpServerOptions
 import io.vertx.core.net._
-import io.vertx.core.{AbstractVerticle, AsyncResult, Future, Handler}
 import io.vertx.ext.auth.AuthProvider
 import io.vertx.ext.auth.shiro.{ShiroAuth, ShiroAuthOptions, ShiroAuthRealmType}
 import io.vertx.ext.web.Router
@@ -41,7 +40,7 @@ class WebSSLCapableServerVerticle extends AbstractVerticle with DefaultBridgeOpt
     val config = context.config().getJsonObject("webserver")
     val authCfg = context.config().getJsonObject("authentication")
     Option(config) match {
-      case Some(cfg) => logger.info("SSL Config is not null")
+      case Some(_) => logger.info("SSL Config is not null")
       case None =>
         val ex = new IllegalArgumentException("Missing required SSL Configuration parameters in io.vertx.core.Context.config()")
         logger.error("Authorization configuration was null, please supply a valid JsonObject via DeployOptions.setConfig when deploying this Verticle")

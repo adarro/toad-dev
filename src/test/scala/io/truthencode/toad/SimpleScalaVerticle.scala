@@ -7,13 +7,14 @@ import _root_.io.vertx.ext.mongo.{MongoClient, MongoClientDeleteResult, MongoCli
 import _root_.io.vertx.ext.web.handler.{BodyHandler, StaticHandler}
 import _root_.io.vertx.ext.web.{Router, RoutingContext}
 import com.typesafe.config.{Config, ConfigFactory}
-import com.typesafe.scalalogging.slf4j.LazyLogging
+import com.typesafe.scalalogging.LazyLogging
 import io.truthencode.toad
 import io.truthencode.toad.config.CommonImplicits._
 import io.truthencode.toad.verticle.Event2HandlerImplicits._
 import io.truthencode.toad.verticle.Whisky
 
 import scala.collection.JavaConversions._
+import com.typesafe.scalalogging.LazyLogging
 
 object SimpleScalaVerticle extends LazyLogging {
   private val log = logger

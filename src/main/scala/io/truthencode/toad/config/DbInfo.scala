@@ -1,6 +1,6 @@
 package io.truthencode.toad.config
 
-import com.typesafe.scalalogging.slf4j.LazyLogging
+import com.typesafe.scalalogging.LazyLogging
 import configs.Result.{Failure, Success}
 import configs.syntax.ConfigOps
 

@@ -1,7 +1,7 @@
 package io.truthencode.toad.web
 
 import akka.actor.ActorSystem
-import com.typesafe.scalalogging.slf4j.LazyLogging
+import com.typesafe.scalalogging.LazyLogging
 @deprecated(message = "No longer using SocketMonkey, routing is done by Vertx",since="0.0.1")
 object Routing extends LazyLogging {
   def Routes(implicit system: ActorSystem) = {

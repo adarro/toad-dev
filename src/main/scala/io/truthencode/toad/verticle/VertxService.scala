@@ -1,10 +1,10 @@
 package io.truthencode.toad.verticle
 
-import com.typesafe.scalalogging.slf4j.LazyLogging
-import io.truthencode.toad.config.CommonImplicits._
+import com.typesafe.scalalogging.LazyLogging
 import io.truthencode.toad.config.cfg
-import io.vertx.core.dns.AddressResolverOptions
+import io.truthencode.toad.config.CommonImplicits._
 import io.vertx.core.{AsyncResult, DeploymentOptions, Vertx, VertxOptions}
+import io.vertx.core.dns.AddressResolverOptions
 
 import scala.concurrent.{Await, Future, Promise}
 import scala.language.postfixOps
@@ -47,7 +47,6 @@ object VertxService extends LazyLogging {
     * @return Initialized Future containing Vertx instance or exception
     */
   def startVertXAsync(): Future[Vertx] = {
-    import Event2HandlerImplicits._
     val vLauncher = Promise[Vertx]
 
     val addOpts = new AddressResolverOptions()

@@ -1,7 +1,6 @@
 package io.truthencode.toad
 
-import com.typesafe.scalalogging.slf4j.LazyLogging
-
+import com.typesafe.scalalogging.LazyLogging
 import io.truthencode.toad.config.Bootstrap._
 
 object Main extends LazyLogging {

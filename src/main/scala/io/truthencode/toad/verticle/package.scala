@@ -1,11 +1,11 @@
 package io.truthencode.toad
 
-import _root_.io.vertx.core.{DeploymentOptions, Handler}
 import com.typesafe.config._
-import com.typesafe.scalalogging.slf4j.LazyLogging
-import io.truthencode.toad.config.CommonImplicits._
+import com.typesafe.scalalogging.LazyLogging
 import io.truthencode.toad.config.cfg
+import io.truthencode.toad.config.CommonImplicits._
 import io.truthencode.toad.verticle.MergeOption._
+import _root_.io.vertx.core.{DeploymentOptions, Handler}
 import io.vertx.core.json.JsonObject
 
 import scala.language.implicitConversions

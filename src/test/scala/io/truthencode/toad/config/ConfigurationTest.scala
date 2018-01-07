@@ -1,14 +1,14 @@
 package io.truthencode.toad.config
 
 import com.typesafe.config.ConfigFactory
-import com.typesafe.scalalogging.slf4j.LazyLogging
+import com.typesafe.scalalogging.LazyLogging
 import io.truthencode.toad.config.CommonImplicits._
 import io.truthencode.toad.verticle.DeploymentOptionMerger
 import io.vertx.core.DeploymentOptions
 import io.vertx.core.json.JsonObject
 import org.junit.runner.RunWith
-import org.scalatest.junit.JUnitRunner
 import org.scalatest.{FunSpec, Matchers}
+import org.scalatest.junit.JUnitRunner
 
 import scala.collection.JavaConverters._
 

@@ -1,11 +1,11 @@
 package io.truthencode.toad.verticle
 
 import com.typesafe.config._
-import com.typesafe.scalalogging.slf4j.LazyLogging
+import com.typesafe.scalalogging.LazyLogging
 import io.vertx.core.DeploymentOptions
 import org.junit.runner.RunWith
-import org.scalatest.junit.JUnitRunner
 import org.scalatest.{FunSpec, Matchers}
+import org.scalatest.junit.JUnitRunner
 
 @RunWith(classOf[JUnitRunner])
 class DeploymentOptionMergerTest extends FunSpec with Matchers with LazyLogging {

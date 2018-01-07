@@ -1,12 +1,12 @@
 package io.truthencode.toad.config
 
 import com.typesafe.config.{Config, ConfigFactory}
-import com.typesafe.scalalogging.slf4j.LazyLogging
+import com.typesafe.scalalogging.LazyLogging
 import configs.Result.{Failure, Success}
 import org.junit.Assume._
 import org.junit.runner.RunWith
-import org.scalatest.junit.JUnitRunner
 import org.scalatest.{FunSpec, Matchers}
+import org.scalatest.junit.JUnitRunner
 
 import scala.language.postfixOps
 import scala.util.Try

@@ -1,11 +1,11 @@
 package io.truthencode.toad
 
-import com.typesafe.scalalogging.slf4j.LazyLogging
-import io.truthencode.toad.config.Implicits.engine
+import com.typesafe.scalalogging.LazyLogging
 import io.truthencode.toad.config.{serverIp, serverPort}
+import io.truthencode.toad.config.Implicits.engine
 import org.junit.runner.RunWith
-import org.scalatest.junit.JUnitRunner
 import org.scalatest.{FunSpec, Matchers}
+import org.scalatest.junit.JUnitRunner
 
 @RunWith(classOf[JUnitRunner])
 class EngineRenderingTest extends FunSpec with Matchers with LazyLogging {

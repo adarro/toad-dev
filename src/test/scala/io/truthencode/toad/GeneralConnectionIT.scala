@@ -1,9 +1,8 @@
 package io.truthencode.toad
 
 import com.netaporter.uri.dsl.{stringToUriDsl, uriToString, uriToUriOps}
-import com.typesafe.scalalogging.slf4j.LazyLogging
+import com.typesafe.scalalogging.LazyLogging
 import io.truthencode.toad.config.{serverIp, serverPort}
-import io.truthencode.toad.verticle.Event2HandlerImplicits._
 import io.truthencode.toad.verticle.{DeploymentOptionMerger, WebSSLCapableServerVerticle}
 import io.vertx.core.DeploymentOptions
 import io.vertx.core.buffer.Buffer
@@ -11,8 +10,8 @@ import io.vertx.core.http.{HttpClientOptions, HttpClientResponse}
 import org.apache.http.client.methods.HttpGet
 import org.apache.http.impl.client.HttpClients
 import org.junit.runner.RunWith
-import org.scalatest.junit.JUnitRunner
 import org.scalatest.{FunSpec, Matchers}
+import org.scalatest.junit.JUnitRunner
 
 import scala.language.reflectiveCalls
 
