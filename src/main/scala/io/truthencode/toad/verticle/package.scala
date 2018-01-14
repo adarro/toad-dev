@@ -48,14 +48,10 @@ package object verticle {
       * @return a mapped handler
       *
       */
-    implicit def asyncToHandler[T, S](event: (T) => S): Handler[T] = new Handler[T] {
-      override def handle(dEvent: T): Unit = event(dEvent)
-    }
-    implicit def functionToHandler[A](f: A => Unit): Handler[A] = new Handler[A] {
-      override def handle(event: A): Unit = {
-        f(event)
-      }
-    }
+    implicit def asyncToHandler[T, S](event: (T) => S): Handler[T] = (dEvent: T) => event(dEvent)
+
+    implicit def functionToHandler[A](f: A => Unit): Handler[A] = (event: A) => f(event)
+
   }
 
   implicit class DeploymentOptionMerger(helper: DeploymentOptions) extends LazyLogging {
@@ -69,7 +65,7 @@ package object verticle {
       mergeOption match {
         case REPLACE => helper.setConfig(json)
         case MERGE => Option(helper.getConfig) match {
-          case Some(x) => helper.setConfig(helper.getConfig.mergeIn(json))
+          case Some(_) => helper.setConfig(helper.getConfig.mergeIn(json))
           case _ => logger.warn("Specified option to merge existing config will be a REPLACE operation because the base configuration is null")
             helper.setConfig(json)
         }

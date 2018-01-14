@@ -48,6 +48,7 @@ class WebSSLCapableServerVerticle extends AbstractVerticle with DefaultBridgeOpt
     }
     val bindAddress = config.getString("bind-address", "0.0.0.0")
     val bindPort = config.getInteger("bind-port", 8080)
+    val bindPortSSL = config.getInteger("bind-port-ssl",8443)
     val webRoot: String = config.getString("webroot", "webroot/")
     logger.info(s"Using webroot => $webRoot")
     val router = Router.router(vertx)
@@ -69,12 +70,14 @@ class WebSSLCapableServerVerticle extends AbstractVerticle with DefaultBridgeOpt
     }
 
     router.route("/eventbus/*").handler(sockjs)
-
     router.route().handler(StaticHandler.create(webRoot).setIndexPage("index.html"))
+
+
     //    import java.util.function._
     //    import scala.compat.java8.FunctionConverters._
     // If SSL is requested, prepare the SSL configuration off of the event bus to prevent blocking.
     if (config.containsKey("ssl") && config.getBoolean("ssl")) {
+      logger.debug("SSL option requested, attempting ciphers")
       val fut = new Handler[Future[HttpServerOptions]] {
         override def handle(future: Future[HttpServerOptions]) = {
           val httpOpts = new HttpServerOptions()
@@ -82,6 +85,7 @@ class WebSSLCapableServerVerticle extends AbstractVerticle with DefaultBridgeOpt
             val certPath = config.getString("certificate-path")
             // Use a Java Keystore File
             if (certPath.toLowerCase().endsWith("jks") && config.getString("certificate-password") != null) {
+              logger.info("Using Java KeyStore")
               httpOpts.setKeyStoreOptions(new JksOptions()
                 .setPassword(config.getString("certificate-password"))
                 .setPath(certPath))
@@ -90,6 +94,7 @@ class WebSSLCapableServerVerticle extends AbstractVerticle with DefaultBridgeOpt
               // Use a PKCS12 keystore
             } else if (config.getString("certificate-password") != null &&
               certPath.matches("^.*\\.(pfx|p12|PFX|P12)$")) {
+              logger.info("Using PKCS12 Keystore")
               httpOpts.setPfxKeyCertOptions(new PfxOptions()
                 .setPassword(config.getString("certificate-password"))
                 .setPath(certPath))
@@ -97,6 +102,7 @@ class WebSSLCapableServerVerticle extends AbstractVerticle with DefaultBridgeOpt
 
               // Use a PEM key/cert pair
             } else if (certPath.matches("^.*\\.(pem|PEM)$")) {
+              logger.info("Using PEM key/cert pair")
               httpOpts.setPemKeyCertOptions(new PemKeyCertOptions()
                 .setCertPath(certPath)
                 .setKeyPath(certPath))
@@ -106,7 +112,7 @@ class WebSSLCapableServerVerticle extends AbstractVerticle with DefaultBridgeOpt
             }
           } else try {
             // Generate a self-signed key pair and certificate
-            logger.info("Attempting self-signed SSL")
+            logger.warn("Attempting self-signed SSL - this is not a recommended best practice for production environments")
             val store = KeyStore.getInstance("JKS")
             store.load(null, null)
             val keypair = new CertAndKeyGen("RSA", "SHA256WithRSA", null)
@@ -130,8 +136,10 @@ class WebSSLCapableServerVerticle extends AbstractVerticle with DefaultBridgeOpt
       }
       val rslt: Handler[AsyncResult[HttpServerOptions]] = (result: AsyncResult[HttpServerOptions]) => {
         if (!result.failed()) {
-          vertx.createHttpServer(result.result()).requestHandler(router.accept _).listen(bindPort, bindAddress)
-          logger.info(s"SSL Web server now listening on @ $bindAddress:$bindPort")
+          vertx.createHttpServer(result.result()).requestHandler(router.accept _).listen(bindPortSSL, bindAddress)
+          logger.info(s"SSL Web server now listening on $bindAddress:$bindPortSSL")
+          vertx.createHttpServer().requestHandler(router.accept _).listen(bindPort, bindAddress)
+          logger.info(s"Default (Non) SSL server listening on $bindAddress:$bindPort ")
           startFuture.complete()
         }
       }

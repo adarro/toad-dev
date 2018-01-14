@@ -1,6 +1,6 @@
 package io.truthencode.toad.verticle
 
-import io.vertx.ext.web.handler.sockjs.PermittedOptions
+import io.vertx.ext.bridge.PermittedOptions
 
 /**
   * Created by adarr on 7/25/2016.

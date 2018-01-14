@@ -1,19 +1,23 @@
 package io.truthencode.toad.config
 
-import com.typesafe.config.{Config, ConfigFactory}
-import com.typesafe.scalalogging.LazyLogging
-import configs.Result.{Failure, Success}
-import org.junit.Assume._
-import org.junit.runner.RunWith
-import org.scalatest.{FunSpec, Matchers}
-import org.scalatest.junit.JUnitRunner
-
-import scala.language.postfixOps
 import scala.util.Try
 
+import org.junit.Assume.assumeTrue
+import org.junit.runner.RunWith
+import org.scalatest.FunSpec
+import org.scalatest.Matchers
+
+import com.typesafe.config.Config
+import com.typesafe.config.ConfigFactory
+import com.typesafe.scalalogging.LazyLogging
+
+import configs.Result.Failure
+import configs.Result.Success
+import org.scalatest.junit.JUnitRunner
+
 /**
-  * Created by adarr on 7/15/2016.
-  */
+ * Created by adarr on 7/15/2016.
+ */
 @RunWith(classOf[JUnitRunner])
 class DbInfoTest extends FunSpec with Matchers with LazyLogging {
   val fixture = new {
@@ -46,7 +50,7 @@ class DbInfoTest extends FunSpec with Matchers with LazyLogging {
         case _ => None
       }
       tCfg should not be empty
-      val myCfg = tCfg.get
+      //   val myCfg = tCfg.get
       val result = cfg.get[DbInfo]("db-info") match {
         case Success(x) => Some(DbInfo(x.host, x.port, x.uuid, x.userId, x.pwd, x.url))
         case Failure(x) =>

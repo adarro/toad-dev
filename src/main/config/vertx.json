@@ -1,0 +1,4 @@
+{
+  "redeploy": false,
+  "vertx.launcher": "io.truthencode.toad.Main"
+}

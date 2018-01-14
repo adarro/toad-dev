@@ -6,6 +6,7 @@ import configs.Result.{Failure, Success}
 import configs.syntax.ConfigOps
 import io.truthencode.toad.actor.Actors
 import io.truthencode.toad.verticle.VertxService
+import io.vertx.core.Vertx
 import io.vertx.core.json.JsonObject
 import org.fusesource.scalate.TemplateEngine
 
@@ -16,6 +17,16 @@ import scala.language.implicitConversions
   * Also used as a base reference for Implicit objects.
   */
 package object config extends LazyLogging {
+  val cfg = ConfigFactory.load("defaults")
+  val (serverIp, serverPort, hostName) =
+    cfg.get[ServerInfo]("server-info") match {
+      case Success(x) => (x.ip, x.port, s"${x.hostName}:${x.port}")
+      case Failure(x) =>
+        logger.error("Error reading Server configuration", x.configException)
+        ("127.0.0.1", "8080", "localhost:8080")
+    }
+
+  def ClusterManager = Implicits.cluster
 
   /**
     * Implicit services such as the template engine, Default Akka Actor system, Vertx main instance etc.
@@ -25,7 +36,8 @@ package object config extends LazyLogging {
     implicit lazy val system = Actors.actorSystem
     // Clustering orchestration for Vertx / Camel
     // implicit val mgr = new HazelcastClusterManager
-    implicit lazy val vertx = VertxService.startVertx()
+    implicit lazy val vertx: Vertx = VertxService.startVertx()
+    implicit lazy val cluster = io.truthencode.toad.cluster.Hazelcast.clusterManager
 
   }
 
@@ -52,12 +64,4 @@ package object config extends LazyLogging {
 
   }
 
-  val cfg = ConfigFactory.load("defaults")
-  val (serverIp, serverPort, hostName) =
-    cfg.get[ServerInfo]("server-info") match {
-      case Success(x) => (x.ip, x.port, s"${x.hostName}:${x.port}")
-      case Failure(x) =>
-        logger.error("Error reading Server configuration", x.configException)
-        ("127.0.0.1", "8080", "localhost:8080")
-    }
 }

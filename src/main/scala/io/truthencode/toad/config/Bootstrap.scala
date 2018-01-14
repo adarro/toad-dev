@@ -2,7 +2,10 @@ package io.truthencode.toad.config
 
 import com.typesafe.scalalogging.LazyLogging
 
-import scala.collection.JavaConverters._
+import io.truthencode.toad.cluster.ShutdownMonitor
+import io.truthencode.toad.verticle.VertxService
+import io.vertx.core.AsyncResult
+import io.vertx.core.Vertx
 
 /**
   * Configures and initializes template / routing etc engines.
@@ -20,10 +23,36 @@ object Bootstrap extends LazyLogging {
 
   def init() = {
     import Implicits._
-    logger.info("Deployed verticle ID's")
-    for (id <- vertx.deploymentIDs().asScala) {
-      logger.info(id)
-    }
+    Runtime.getRuntime.addShutdownHook(new Thread(() => {
+      def shutdown(): Unit = {
+        logger.info("Shutting down Vertx")
+        lazy val vx: Vertx = io.truthencode.toad.config.Implicits.vertx
+        vx.close((event: AsyncResult[Void]) => {
+          if (event.succeeded()) {
+            logger.info("Shut down Vertx")
+          }
+          else if (event.failed()) {
+            logger.error(s"Failed to shut down Vertx ${event.cause().getStackTrace}")
+          }
+        })
+
+        logger.info("Shutting down Hazelcast")
+        val instance = ClusterManager.getHazelcastInstance
+        if (instance.getPartitionService.isClusterSafe) {
+          val svc = instance.getExecutorService(VertxService.getClass.getName)
+          svc.executeOnAllMembers(new ShutdownMonitor)
+        }
+      }
+
+      shutdown()
+    }))
+  //  logger.info("Deployed verticle ID's")
+  //  val ctx = vertx.getOrCreateContext()
+
+
+    val iCount = vertx.getOrCreateContext().getInstanceCount
+    logger.info(s"$iCount Vertx instances created")
+
   }
 
   //Spin up Vertx

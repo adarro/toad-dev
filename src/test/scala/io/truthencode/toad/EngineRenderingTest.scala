@@ -9,7 +9,13 @@ import org.scalatest.junit.JUnitRunner
 
 @RunWith(classOf[JUnitRunner])
 class EngineRenderingTest extends FunSpec with Matchers with LazyLogging {
-  lazy val fixture = new {   
+  lazy val fixture: {
+    val api: String
+
+    val host: String
+
+    val other: String
+  } = new {
 
    // val engine = engine
     lazy val api = s"http://$serverIp:$serverPort/api"
@@ -19,8 +25,6 @@ class EngineRenderingTest extends FunSpec with Matchers with LazyLogging {
 
   describe("The template engine") {
     it("Should support and find jade") {
-      val f = fixture
-
       val data = engine.layout("/chat2.jade")
       logger.info(data)
     }
