@@ -27,7 +27,7 @@
     <!-- vertx -->
     <vertx.version>3.3.2</vertx.version>
     <!-- Camel -->
-    <camel.version>2.20.1</camel.version>
+    <camel.version>3.2.0</camel.version>
     <!-- Scala goodness -->
     <scala.base>2.12</scala.base>
     <scala.minor.version>3</scala.minor.version>
